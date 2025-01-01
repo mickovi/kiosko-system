@@ -28,15 +28,16 @@ export type ProductsWithCategory = Awaited<ReturnType<typeof getProducts>>;
 export default async function ProductPage({
   searchParams,
 }: {
-  searchParams: { currentPage: string };
+  searchParams: { page: string };
 }) {
-  const { currentPage } = await searchParams;
-  const page = +currentPage || 1;
+  const { page } = await searchParams;
+  const currentPage = +page || 1;
+  
   const pageSize = 10;
 
-  if (page < 0) redirect("/admin/product");
+  if (currentPage < 0) redirect("/admin/product");
 
-  const productsData = getProducts(page, pageSize);
+  const productsData = getProducts(currentPage, pageSize);
   const totalProductsData = ProductsCount();
 
   const [products, totalProducts] = await Promise.all([
@@ -46,8 +47,8 @@ export default async function ProductPage({
 
   const totalPages = Math.ceil(totalProducts / pageSize);
 
-  if (page > totalPages) redirect("/admin/product");
-
+  if (currentPage > totalPages) redirect("/admin/product");
+  
   return (
     <>
       <Heading>Administrar Productos</Heading>
@@ -61,7 +62,7 @@ export default async function ProductPage({
         <ProductSearchForm />
       </div>
       <ProductTable products={products} />
-      <ProductPagination page={page} totalPages={totalPages} />
+      <ProductPagination page={currentPage} totalPages={totalPages} />
     </>
   );
 }
